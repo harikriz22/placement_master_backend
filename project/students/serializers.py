@@ -66,17 +66,34 @@ class BatchSwitchSerializer(serializers.Serializer):
     
 
 class BatchSwitchHistorySerializer(serializers.ModelSerializer):
-    previous_batch = serializers.StringRelatedField()
-    new_batch = serializers.StringRelatedField()
-    switched_by = serializers.StringRelatedField()
+
+    student_name = serializers.CharField(
+        source="student.name",
+        read_only=True
+    )
+
+    student_email = serializers.EmailField(
+        source="student.email",
+        read_only=True
+    )
+
+    student_phone = serializers.CharField(
+        source="student.phone",
+        read_only=True
+    )
+
+    previous_batch = serializers.StringRelatedField(read_only=True)
+    new_batch = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = BatchSwitchHistory
         fields = [
             "id",
+            "student_name",
+            "student_email",
+            "student_phone",
             "previous_batch",
             "new_batch",
             "reason",
-            "switched_by",
             "switched_at",
         ]

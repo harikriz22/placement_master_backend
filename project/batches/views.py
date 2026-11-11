@@ -1,13 +1,14 @@
 from django.shortcuts import render
-
-# Create your views here.
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-
-from students.models import Batch
+from django.db.models import Count
+from students.models import Batch,Student
 from .serializers import BatchSerializer
+from django.db.models import Q
+from students.serializers import StudentSerializer
+
 
 
 class BatchListCreateAPIView(APIView):
@@ -132,3 +133,83 @@ class BatchDetailAPIView(APIView):
             "message": "Batch update failed.",
             "errors": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        
+class CourseListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        courses = (
+            Batch.objects
+            .values("course")
+            .annotate(total_batches=Count("id"))
+            .order_by("course")
+        )
+
+        return Response(
+            {
+                "success": True,
+                "message": "Courses retrieved successfully.",
+                "data": courses
+            },
+            status=status.HTTP_200_OK
+        )
+        
+
+class BatchStudentsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            batch = Batch.objects.get(pk=pk)
+        except Batch.DoesNotExist:
+            return Response(
+                {
+                    "success": False,
+                    "message": "Batch not found."
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        students = Student.objects.filter(batch=batch).select_related(
+            "batch",
+            "updated_by"
+        )
+
+        counts = students.aggregate(
+            total_students=Count("id"),
+
+            eligible=Count(
+                "id",
+                filter=(
+                    Q(fee_completed=True)
+                    & Q(project_completed=True)
+                    & ~Q(course_status__in=[
+                        Student.CourseStatus.DROP,
+                        Student.CourseStatus.BATCHSWITCH_DROPPED
+                    ])
+                )
+            )
+        )
+
+        counts["not_eligible"] = (
+            counts["total_students"] - counts["eligible"]
+        )
+
+        serializer = StudentSerializer(students, many=True)
+
+        return Response(
+            {
+                "success": True,
+                "message": "Batch details retrieved successfully.",
+                "data": {
+                    "batch": BatchSerializer(batch).data,
+                    "counts": counts,
+                    "students": serializer.data
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+        

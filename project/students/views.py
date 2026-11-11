@@ -405,10 +405,37 @@ class BatchSwitchHistoryAPIView(APIView):
         history = BatchSwitchHistory.objects.filter(
             student_id=pk
         ).select_related(
+            "student",
             "previous_batch",
             "new_batch",
             "switched_by"
         )
+
+        serializer = BatchSwitchHistorySerializer(
+            history,
+            many=True
+        )
+
+        return Response(
+            {
+                "success": True,
+                "message": "Batch switch history retrieved successfully.",
+                "data": serializer.data
+            },
+            status=status.HTTP_200_OK
+        )
+
+class AllBatchSwitchHistoryAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        history = BatchSwitchHistory.objects.select_related(
+            "student",
+            "previous_batch",
+            "new_batch",
+            "switched_by"
+        ).all()
 
         serializer = BatchSwitchHistorySerializer(
             history,
