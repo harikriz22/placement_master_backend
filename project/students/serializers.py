@@ -82,8 +82,47 @@ class BatchSwitchHistorySerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    previous_batch = serializers.StringRelatedField(read_only=True)
-    new_batch = serializers.StringRelatedField(read_only=True)
+    old_course = serializers.CharField(
+        source="previous_batch.course",
+        read_only=True
+    )
+
+    old_month = serializers.CharField(
+        source="previous_batch.month",
+        read_only=True
+    )
+
+    old_year = serializers.IntegerField(
+        source="previous_batch.year",
+        read_only=True
+    )
+
+    old_batch_number = serializers.IntegerField(
+        source="previous_batch.batch_number",
+        read_only=True
+    )
+
+    new_course = serializers.CharField(
+        source="new_batch.course",
+        read_only=True
+    )
+
+    new_month = serializers.CharField(
+        source="new_batch.month",
+        read_only=True
+    )
+
+    new_year = serializers.IntegerField(
+        source="new_batch.year",
+        read_only=True
+    )
+
+    new_batch_number = serializers.IntegerField(
+        source="new_batch.batch_number",
+        read_only=True
+    )
+
+    switched_by = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = BatchSwitchHistory
@@ -92,8 +131,15 @@ class BatchSwitchHistorySerializer(serializers.ModelSerializer):
             "student_name",
             "student_email",
             "student_phone",
-            "previous_batch",
-            "new_batch",
+            "old_course",
+            "old_month",
+            "old_year",
+            "old_batch_number",
+            "new_course",
+            "new_month",
+            "new_year",
+            "new_batch_number",
             "reason",
+            "switched_by",
             "switched_at",
         ]

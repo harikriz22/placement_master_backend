@@ -140,22 +140,21 @@ class CourseListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-
         courses = (
             Batch.objects
             .values("course")
-            .annotate(total_batches=Count("id"))
+            .annotate(
+                total_batches=Count("id", distinct=True),
+                total_students=Count("students", distinct=True)
+            )
             .order_by("course")
         )
 
-        return Response(
-            {
-                "success": True,
-                "message": "Courses retrieved successfully.",
-                "data": courses
-            },
-            status=status.HTTP_200_OK
-        )
+        return Response({
+            "success": True,
+            "message": "Courses retrieved successfully.",
+            "data": courses
+        }, status=status.HTTP_200_OK)
         
 
 class BatchStudentsAPIView(APIView):
