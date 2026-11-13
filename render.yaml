@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: placement-tracker-backend
+    runtime: python
+    plan: starter
+    branch: member-auth
+    rootDir: project
+
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+
+    startCommand: python manage.py migrate && gunicorn project.wsgi:application
+
+    disk:
+      name: placement-tracker-data
+      mountPath: /var/data
+      sizeGB: 1
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PLACEMENT_INVITE_CODE
+        sync: false
+      - key: DATABASE_PATH
+        value: /var/data/db.sqlite3
