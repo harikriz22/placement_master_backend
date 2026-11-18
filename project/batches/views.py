@@ -8,6 +8,7 @@ from students.models import Batch,Student
 from .serializers import BatchSerializer
 from django.db.models import Q
 from students.serializers import StudentSerializer
+from django.db.models.deletion import ProtectedError
 
 
 
@@ -133,6 +134,37 @@ class BatchDetailAPIView(APIView):
             "message": "Batch update failed.",
             "errors": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+        
+
+    # Delete a batch
+    def delete(self, request, pk):
+
+        batch = self.get_object(pk)
+
+        if batch is None:
+            return Response({
+                "success": False,
+                "message": "Batch not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            batch.delete()
+
+            return Response({
+                "success": True,
+                "message": "Batch deleted successfully.",
+                "data": None
+            }, status=status.HTTP_200_OK)
+
+        except ProtectedError:
+            return Response({
+                "success": False,
+                "message": (
+                    "This batch cannot be deleted because students "
+                    "or batch-switch history records are associated with it."
+                ),
+                "data": None
+            }, status=status.HTTP_409_CONFLICT)
         
         
         

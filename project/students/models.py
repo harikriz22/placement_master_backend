@@ -75,6 +75,18 @@ class Student(models.Model):
     )
 
     remarks = models.TextField(blank=True)
+    
+    qualification = models.CharField(max_length=150, blank=True)
+    passout_year = models.PositiveSmallIntegerField(null=True, blank=True)
+    college_name = models.CharField(max_length=255, blank=True)
+
+    module_evaluation = models.TextField(blank=True)
+    mock_presentation = models.TextField(blank=True)
+    trainer_feedback = models.TextField(blank=True)
+    hr_feedback = models.TextField(blank=True)
+
+    resume_session = models.BooleanField(null=True, blank=True)
+    interview_session = models.BooleanField(null=True, blank=True)
 
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -98,7 +110,7 @@ class BatchSwitchHistory(models.Model):
 
     student = models.ForeignKey(
         Student,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="batch_switch_history"
     )
 

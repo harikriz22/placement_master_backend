@@ -9,8 +9,11 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model=Student
         fields=[
-            "id","name","email","phone","batch","batch_name","course_status",
+            "id","name","email","phone","qualification","passout_year",
+            "college_name","batch","batch_name","course_status",
             "fee_completed","project_completed","eligible","placement_status",
+            "module_evaluation","mock_presentation","trainer_feedback",
+            "hr_feedback","resume_session","interview_session",
             "remarks","updated_by","updated_at",
             ]
         

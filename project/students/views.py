@@ -297,17 +297,34 @@ class StudentDetailAPIView(APIView):
             },
             status=status.HTTP_200_OK
         )
-
+    
+    # Delete a student
     def delete(self, request, pk):
+
+        student = self.get_object(pk)
+
+        if student is None:
+            return Response(
+                {
+                    "success": False,
+                    "message": "Student not found.",
+                    "data": None
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        student.delete()
 
         return Response(
             {
-                "success": False,
-                "message": "Student deletion is not allowed.",
+                "success": True,
+                "message": "Student deleted successfully.",
                 "data": None
             },
-            status=status.HTTP_405_METHOD_NOT_ALLOWED
+            status=status.HTTP_200_OK
         )
+
+    
 
 
 
