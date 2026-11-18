@@ -5,6 +5,10 @@ class StudentSerializer(serializers.ModelSerializer):
     
     batch_name=serializers.StringRelatedField(source="batch",read_only=True)
     eligible=serializers.SerializerMethodField()
+    updated_by_name = serializers.CharField(
+    source="updated_by.first_name",
+    read_only=True
+)
     
     class Meta:
         model=Student
@@ -14,7 +18,7 @@ class StudentSerializer(serializers.ModelSerializer):
             "fee_completed","project_completed","eligible","placement_status",
             "module_evaluation","mock_presentation","trainer_feedback",
             "hr_feedback","resume_session","interview_session",
-            "remarks","updated_by","updated_at",
+            "remarks","updated_by", "updated_by_name","updated_at",
             ]
         
         read_only_fields = ["id","eligible","updated_by","updated_at",]
