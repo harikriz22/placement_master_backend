@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "authentication",
     "dashboard",
     "batches",
+    "student_import",
 
     
 ]

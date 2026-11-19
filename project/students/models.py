@@ -60,7 +60,7 @@ class Student(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=150)
-    email = models.EmailField()
+    email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=20)
     batch = models.ForeignKey(Batch,on_delete=models.PROTECT,related_name="students")
 
