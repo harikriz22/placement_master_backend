@@ -23,7 +23,9 @@ class StudentImportRowSerializer(serializers.Serializer):
     )
 
     placement_status = serializers.ChoiceField(
-        choices=Student.PlacementStatus.choices
+        choices=Student.PlacementStatus.choices,
+        required=False,
+        allow_blank=True
     )
 
     remarks = serializers.CharField(required=False, allow_blank=True)

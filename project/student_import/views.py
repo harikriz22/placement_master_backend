@@ -10,18 +10,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
-
 from students.models import Student, Batch
 from .serializers import StudentImportRowSerializer
 
 
 def get_batch_from_reference(reference):
-    """
-    Resolve Excel batch reference to a Batch object.
-
-    Expected format:
-    Course | Month | Year | Batch Number
-    """
 
     course, month, year, batch_number = [
         value.strip()
@@ -185,13 +178,20 @@ class StudentImportPreviewView(APIView):
                     row_data["course_status"] = (
                         Student.CourseStatus.ONGOING
                     )
-
-                # Default placement status
-                if not row_data.get("placement_status"):
-
+                    
+                # Dropped students do not need placement
+                if row_data["course_status"] in [
+                    Student.CourseStatus.DROP,
+                    Student.CourseStatus.BATCHSWITCH_DROPPED,
+                ]:
                     row_data["placement_status"] = (
-                        Student.PlacementStatus.PROJECT_NOT_COMPLETED
+                        Student.PlacementStatus.PLACEMENT_NOT_NEEDED
                     )
+                    
+                # Normalize empty placement status
+                if row_data.get("placement_status") is None:
+                    row_data["placement_status"] = ""
+
 
                 # Normalize boolean fields
                 for field in boolean_fields:

@@ -36,28 +36,18 @@ class StudentSerializer(serializers.ModelSerializer):
         
 
     def validate(self, attrs):
-        project_completed = attrs.get(
-            "project_completed",
-            getattr(self.instance, "project_completed", False)
+        course_status = attrs.get(
+            "course_status",
+            getattr(self.instance, "course_status", None)
         )
-        placement_status = attrs.get(
-            "placement_status",
-            getattr(
-                self.instance,
-                "placement_status",
-                Student.PlacementStatus.PROJECT_NOT_COMPLETED
-            )
-        )
-        if not project_completed:
+
+        if course_status in [
+            Student.CourseStatus.DROP,
+            Student.CourseStatus.BATCHSWITCH_DROPPED,
+        ]:
             attrs["placement_status"] = (
-                Student.PlacementStatus.PROJECT_NOT_COMPLETED
+                Student.PlacementStatus.PLACEMENT_NOT_NEEDED
             )
-        elif placement_status == Student.PlacementStatus.PROJECT_NOT_COMPLETED:
-            raise serializers.ValidationError({
-                "placement_status": (
-                    "Project is completed. Please select another placement status."
-                )
-            })
 
         return attrs
     

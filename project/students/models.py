@@ -57,6 +57,7 @@ class Student(models.Model):
         PLACED = "Placed", "Placed"
         PROJECT_NOT_COMPLETED = "Project not completed", "Project not completed"
         PLACEMENT_NOT_NEEDED = "Placement not needed", "Placement not needed"
+        NOT_RESPONDING = "Not responding", "Not responding"
 
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=150)
@@ -71,8 +72,8 @@ class Student(models.Model):
     placement_status = models.CharField(
         max_length=30,
         choices=PlacementStatus.choices,
-        default=PlacementStatus.PROJECT_NOT_COMPLETED
-    )
+        default="",
+        blank=True)
 
     remarks = models.TextField(blank=True)
     
@@ -100,6 +101,24 @@ class Student(models.Model):
 
     class Meta:
         ordering = ["name"]
+        
+    def save(self, *args, **kwargs):
+        dropped_statuses = [
+            self.CourseStatus.DROP,
+            self.CourseStatus.BATCHSWITCH_DROPPED,
+        ]
+
+        if self.course_status in dropped_statuses:
+            self.placement_status = (
+                self.PlacementStatus.PLACEMENT_NOT_NEEDED
+            )
+
+            if kwargs.get("update_fields") is not None:
+                kwargs["update_fields"] = (
+                    set(kwargs["update_fields"]) | {"placement_status"}
+                )
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
